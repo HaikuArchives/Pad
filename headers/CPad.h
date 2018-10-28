@@ -5,11 +5,13 @@
 #pragma once
 
 #include "CText.h"
-#include "TList.h"
+//#include "TList.h"
 #include <Entry.h>
 #include <MenuBar.h>
 #include <ScrollBar.h>
 #include <Window.h>
+#include <ObjectList.h>
+#include <StringView.h>
 
 class CPad : public BWindow {
 public:
@@ -52,6 +54,6 @@ protected:
 	BScrollBar			*mScroll;	// The vertical scroll bar at side
 	BStringView			*mFooter;	// Footer (contains page number)
 	BMenuBar			*mMenu;		// Menu bar
-	TList<CText*>		mPages;		// The list of pages
+	BObjectList<CText>		mPages;		// The list of pages
 	uint16				mCurPage;	// Number of the current page
 };
