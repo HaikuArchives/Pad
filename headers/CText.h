@@ -19,5 +19,5 @@ public:
 	// ====================================================================
 	// 	INHERITED OVERRIDES
 	// ====================================================================
-	virtual	void	FrameResized	( float width, float height );
+	virtual	void FrameResized( float width, float height );
 };

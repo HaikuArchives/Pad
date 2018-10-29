@@ -4,8 +4,9 @@
 
 #include "CPadApp.h"
 
-void main( void ) {
+int main( void ) {
 	new CPadApp;
 	be_app->Run();
 	delete be_app;
+	return 0;
 }

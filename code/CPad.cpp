@@ -6,6 +6,12 @@
 #include "CPad.h"
 #include "Pad.h"
 #include <stdio.h>
+#include <File.h>
+#include <Alert.h>
+#include <MenuItem.h>
+#include <Button.h>
+#include <string.h>
+#include "CPadApp.h"
 
 // ------------------------------------------------------------------- CPad
 CPad::CPad( BEntry *entry )
@@ -78,10 +84,10 @@ CPad::~CPad( void ) {
 	
 	// Destroy all pages
 	try {
-		RemoveChild( mPages.Retrieve( mCurPage - 1 ) );
+		RemoveChild( mPages.ItemAt( mCurPage - 1 ) );
 	} catch( ... ) {}
 	while( !mPages.IsEmpty() ) {
-		delete mPages.Remove( 0 );
+		delete mPages.RemoveItemAt( 0 );
 	}
 }
 
@@ -124,15 +130,15 @@ void CPad::SaveRequested( void ) {
 	// Collect the information to put into the info attribute
 	uint32 info[ 3 ];
 	info[ 0 ] = 0x0100;					// Version 1.0
-	info[ 1 ] = mPages.Length();		// Number of pages
+	info[ 1 ] = mPages.CountItems();		// Number of pages
 	info[ 2 ] = mCurPage;				// Current page
 	
 	// Step through the pages, writing the page's text to the file and
 	// adding its length to an array that will become the pages attribute
 	uint32 *pages = new uint32[ info[ 1 ] ];
 	for( int i = 0; i < info[ 1 ]; i++ ) {
-		pages[ i ] = mPages.Retrieve( i )->TextLength();
-		file.Write( mPages.Retrieve( i )->Text(), pages[ i ] );
+		pages[ i ] = mPages.ItemAt( i )->TextLength();
+		file.Write( mPages.ItemAt( i )->Text(), pages[ i ] );
 	}
 		
 	// Finally, write the attributes
@@ -146,7 +152,7 @@ void CPad::SaveRequested( void ) {
 // --------------------------------------------------------------- NextPage
 void CPad::NextPage( void ) {
 	// If the next page already exists, go to it
-	if( mCurPage < mPages.Length() ) {
+	if( mCurPage < mPages.CountItems() ) {
 		GoToPage( mCurPage + 1 );
 
 	// If not, ask to create it
@@ -183,8 +189,8 @@ void CPad::NewPage( void ) {
 	// Create the new page and add it to the page list
 	BRect bounds( 0, mMenu->Frame().bottom + 1,
 			mScroll->Frame().left - 1, mFooter->Frame().top - 2 );
-	mPages.Add( mCurPage, new CText( bounds, "Text", B_FOLLOW_ALL_SIDES,
-			B_WILL_DRAW | B_NAVIGABLE ) );
+	mPages.AddItem( new CText( bounds, "Text", B_FOLLOW_ALL_SIDES,
+			B_WILL_DRAW | B_NAVIGABLE ),mCurPage );
 
 	// Go to the new page
 	NextPage();
@@ -207,7 +213,7 @@ void CPad::DelPage( void ) {
 		// If this is the first page...
 		if( mCurPage == 1 ) {
 			// If its also the only page, create a new one
-			if( mPages.Length() == 1 ) {
+			if( mPages.CountItems() == 1 ) {
 				NewPage();
 			
 			// If not, simply move to the next one
@@ -222,7 +228,7 @@ void CPad::DelPage( void ) {
 		}
 		
 		// Destroy the page and set the page number
-		delete mPages.Remove( page - 1 );
+		delete mPages.RemoveItemAt( page - 1 );
 		SetPageNum();
 	}
 }
@@ -233,7 +239,7 @@ void CPad::GoToPage( uint16 num ) {
 	BRect frame;
 	CText *page;
 	if( mCurPage > 0 ) {
-		page = mPages.Retrieve( mCurPage - 1 );
+		page = mPages.ItemAt( mCurPage - 1 );
 		page->Select( 0, 0 );
 		page->ScrollToSelection();
 		frame = page->Frame();
@@ -244,7 +250,7 @@ void CPad::GoToPage( uint16 num ) {
 	}
 		
 	// Add the page requested
-	page = mPages.Retrieve( num - 1 );
+	page = mPages.ItemAt( num - 1 );
 	mScroll->SetTarget( page );
 	AddChild( page );
 	page->ResizeTo( frame.right - frame.left, frame.bottom - frame.top );
@@ -266,7 +272,7 @@ void CPad::NewPad( void ) {
 			mFooter->Frame().top - 2 );
 	CText *page = new CText( bounds, "Text", B_FOLLOW_ALL_SIDES,
 			B_WILL_DRAW | B_NAVIGABLE );
-	mPages.Add( 0, page );
+	mPages.AddItem( page, 0 );
 	
 	// Go to the page
 	mCurPage = 1;
@@ -297,12 +303,12 @@ bool CPad::ReadPad100( BFile &file ) {
 				// Create the new page and add it to the page list
 				BRect bounds( 0, mMenu->Frame().bottom + 1,
 						mScroll->Frame().left - 1, mFooter->Frame().top - 2 );
-				mPages.Add( i, new CText( bounds, "Text", B_FOLLOW_ALL_SIDES,
-						B_WILL_DRAW | B_NAVIGABLE ) );
+				mPages.AddItem( new CText( bounds, "Text", B_FOLLOW_ALL_SIDES,
+						B_WILL_DRAW | B_NAVIGABLE ), i);
 
 				// Set the page's text
-				mPages.Retrieve( i )->SetText( text, pages[ i ] );
-				delete [] text;
+				mPages.ItemAt( i )->SetText( text, pages[ i ] );
+				//delete [] text;
 			}
 			
 			// Go to the current page
@@ -322,7 +328,7 @@ bool CPad::ReadPad100( BFile &file ) {
 // ------------------------------------------------------------- SetPageNum
 void CPad::SetPageNum( void ) {
 	char pagestr[ 31 ];
-	sprintf( pagestr, "page %d of %d", mCurPage, mPages.Length() );
+	sprintf( pagestr, "page %d of %d", mCurPage, mPages.CountItems() );
 	mFooter->SetText( pagestr );
 }
 

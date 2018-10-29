@@ -17,6 +17,5 @@ CText::~CText( void ) {
 
 // ----------------------------------------------------------- FrameResized
 void CText::FrameResized( float width, float height ) {
-	SetTextRect( BRect( 1, 1, width - 1, height - 1 ) );
-	inherited::FrameResized( width, height );
+//	SetTextRect( BRect( 1, 1, width - 1, height - 1 ) );
 }
