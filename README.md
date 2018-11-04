@@ -54,11 +54,3 @@ As always, I am not legally responsible for any damage caused directly or indire
 ### Misc.
 
 If you have any comments (good or bad), I would really like to hear them. Bug reports and suggestions for improvement are especially welcome.
-
-### Contact info
-email: slrx7@cc.usu.edu
-phone: (801) 379-3052 (till the end of August)
-snail mail:
-	Jesse Hall
-	2650 Ross Avenue
-	Idaho Falls, ID 83406
